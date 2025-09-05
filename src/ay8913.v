@@ -7,8 +7,8 @@
 //
 // However this implementation uses syncronous reset and single edge of the clock.
 
-module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 8,
-                parameter  MASTER_OUTPUT_BITS = 8
+module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
+                parameter  MASTER_OUTPUT_BITS = 6
 ) (
     input  wire       clk,
     input  wire       rst_n,
@@ -217,6 +217,7 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 8,
         .value(master),
         .out(pwm_out)
         );
-    assign master_out = master[MASTER_ACCUMULATOR_BITS-1 -: 8];
+    assign master_out[7:2] = master[MASTER_ACCUMULATOR_BITS-1 -: 6];
+    assign master_out[1:0] = 0;
     
 endmodule
