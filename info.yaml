@@ -1,9 +1,9 @@
 # Tiny Tapeout project information
 project:
-  title:        ""      # Project title
-  author:       ""      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  ""      # One line description of what your project does
+  title:        "AY-3-891x adapter for TinyQV"      # Project title
+  author:       "ReJ aka Renaldas Zioma"      # Your name
+  discord:      "rzioma"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
+  description:  "Classical 8-bit AY-3-891x Programmable Sound Generator"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     64000000  # Clock frequency in Hz (or 0 if not applicable)
 
@@ -17,6 +17,14 @@ project:
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
+    - "amplitude.v"
+    - "attenuation.v"
+    - "envelope.v"
+    - "noise.v"
+    - "pwm.v"
+    - "signal_edge.v"
+    - "tone.v"
+    - "ay8913.v"
     - "peripheral.v"
     - "tt_wrapper.v"
     - "test_harness/falling_edge_detector.sv"
@@ -40,14 +48,14 @@ pinout:
   ui[7]: ""
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "PWM"
+  uo[1]: "PWM"
+  uo[2]: "PWM"
+  uo[3]: "PWM"
+  uo[4]: "PWM"
+  uo[5]: "PWM"
+  uo[6]: "PWM"
+  uo[7]: "Tiny Tapeout Audio PWM"
 
   # Bidirectional pins
   uio[0]: ""

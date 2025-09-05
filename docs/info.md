@@ -11,19 +11,19 @@ You can also include images in this folder and reference them in the markdown. E
 512 kb in size, and the combined size of all images must be less than 1 MB.
 -->
 
-# Your project title
+# AY-3-819x
 
-Author: Your Name
+Author: ReJ aka Renaldas Zioma
 
 Peripheral index: nn
 
 ## What it does
 
-Explain what your peripheral does and how it works
+TODO: Explain what your peripheral does and how it works
 
 ## Register map
 
-Document the registers that are used to interact with your peripheral
+TODO: Document the registers that are used to interact with your peripheral
 
 | Address | Name  | Access | Description                                                         |
 |---------|-------|--------|---------------------------------------------------------------------|
@@ -31,8 +31,8 @@ Document the registers that are used to interact with your peripheral
 
 ## How to test
 
-Explain how to use your project
+TODO: Explain how to use your project
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+Tiny Tapeout Audio PMOD

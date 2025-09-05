@@ -26,26 +26,33 @@ module tqvp_example (
     output [7:0]  data_out      // Data out from the peripheral, set this in accordance with the supplied address
 );
 
-    // Example: Implement an 8-bit read/write register at address 0
-    reg [7:0] example_data;
-    always @(posedge clk) begin
-        if (!rst_n) begin
-            example_data <= 0;
-        end else begin
-            if (address == 4'h0) begin
-                if (data_write) example_data <= data_in;
-            end
-        end
-    end
+    wire pwm_out;
+    ay8913 ay8913(
+        .clk,
+        .rst_n,
+        .write(data_write),
+        .latched_register(address),
+        .data(data_in),
+        .master_clock_control(2'b10), // div 256 for 64 MHz
+        .master_out(data_out),
+        .pwm_out(pwm_out)
+    );
 
-    // All output pins must be assigned. If not used, assign to 0.
-    assign uo_out  = ui_in + example_data;  // Example: uo_out is the sum of ui_in and the example register
+    // // Example: Implement an 8-bit read/write register at address 0
+    // reg [7:0] example_data;
+    // always @(posedge clk) begin
+    //     if (!rst_n) begin
+    //         example_data <= 0;
+    //     end else begin
+    //         if (address == 4'h0) begin
+    //             if (data_write) example_data <= data_in;
+    //         end
+    //     end
+    // end
 
-    // Address 0 reads the example data register.  
-    // Address 1 reads ui_in
-    // All other addresses read 0.
-    assign data_out = (address == 4'h0) ? example_data :
-                      (address == 4'h1) ? ui_in :
-                      8'h0;    
+    // // All output pins must be assigned. If not used, assign to 0.
+    // assign uo_out  = ui_in + example_data;  // Example: uo_out is the sum of ui_in and the example register
+
+    assign uo_out = {8{pwm_out}};
 
 endmodule
