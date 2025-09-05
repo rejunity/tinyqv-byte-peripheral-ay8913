@@ -50,9 +50,6 @@ module tqvp_example (
     //     end
     // end
 
-    // // All output pins must be assigned. If not used, assign to 0.
-    // assign uo_out  = ui_in + example_data;  // Example: uo_out is the sum of ui_in and the example register
-
     assign uo_out = {8{pwm_out}};
 
 endmodule
