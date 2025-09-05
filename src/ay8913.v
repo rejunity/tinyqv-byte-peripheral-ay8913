@@ -217,7 +217,7 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
         .value(master),
         .out(pwm_out)
         );
-    assign master_out[7:2] = master[MASTER_ACCUMULATOR_BITS-1 -: 6];
+    assign master_out[7:2] = 0;//master[MASTER_ACCUMULATOR_BITS-1 -: 6];
     assign master_out[1:0] = 0;
     
 endmodule
