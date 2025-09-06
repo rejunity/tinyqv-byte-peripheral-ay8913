@@ -163,10 +163,6 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
     wire channel_C = (tone_disable_C | tone_C) & (noise_disable_C | noise);
 
 
-    // wire [3:0] volume_A = (envelope_A ? envelope: amplitude_A) * channel_A;
-    // wire [3:0] volume_B = (envelope_B ? envelope: amplitude_B) * channel_B;
-    // wire [3:0] volume_C = (envelope_C ? envelope: amplitude_C) * channel_C;
-
     reg [3:0] volume_A_reg;
     reg [3:0] volume_B_reg;
     reg [3:0] volume_C_reg;
@@ -176,13 +172,9 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
             volume_B_reg <= channel_B ? (envelope_B ? envelope: amplitude_B) : 4'd0;
             volume_C_reg <= channel_C ? (envelope_C ? envelope: amplitude_C) : 4'd0;
         end
-
-        // if (clk_counter[1:0] == 2'b00) // 01?
-        //     pwm_out_reg <= pwm_out_pipe;
     end
 
     wire [CHANNEL_OUTPUT_BITS-1:0] master_pipe;
-    // reg [MASTER_ACCUMULATOR_BITS-1:0] master_pipe;
     attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_pipe (
         .in(1'b1),
         .control(
@@ -201,65 +193,64 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
         .out(pwm_out_pipe)
         );
 
+    // wire [CHANNEL_OUTPUT_BITS-1:0] volume_A, volume_B, volume_C;
+    // attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_A ( // @TODO: rename to amplitude to match docs
+    //     .in(channel_A),
+    //     .control(envelope_A ? envelope: amplitude_A),
+    //     .out(volume_A)
+    //     );
+    // attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_B (
+    //     .in(channel_B),
+    //     .control(envelope_B ? envelope: amplitude_B),
+    //     .out(volume_B)
+    //     );
+    // attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_C (
+    //     .in(channel_C),
+    //     .control(envelope_C ? envelope: amplitude_C),
+    //     .out(volume_C)
+    //     );
 
-    wire [CHANNEL_OUTPUT_BITS-1:0] volume_A, volume_B, volume_C;
-    attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_A ( // @TODO: rename to amplitude to match docs
-        .in(channel_A),
-        .control(envelope_A ? envelope: amplitude_A),
-        .out(volume_A)
-        );
-    attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_B (
-        .in(channel_B),
-        .control(envelope_B ? envelope: amplitude_B),
-        .out(volume_B)
-        );
-    attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_C (
-        .in(channel_C),
-        .control(envelope_C ? envelope: amplitude_C),
-        .out(volume_C)
-        );
-
-    // @TODO: divide master by 3 instead of 2
+    // // @TODO: divide master by 3 instead of 2
     localparam MASTER_ACCUMULATOR_BITS = CHANNEL_OUTPUT_BITS + 1;
-    localparam MASTER_MAX_OUTPUT_VOLUME = {MASTER_OUTPUT_BITS{1'b1}};
-    wire [MASTER_ACCUMULATOR_BITS-1:0] master;
-    wire master_overflow;
-    assign { master_overflow, master } = volume_A + volume_B + volume_C; // sum all channels
-    // assign uo_out[MASTER_OUTPUT_BITS-1:0] = 
-    //     (master_overflow == 0) ? master[MASTER_ACCUMULATOR_BITS-1 -: MASTER_OUTPUT_BITS] :  // pass highest MASTER_OUTPUT_BITS to the DAC output pins
-    //                              MASTER_MAX_OUTPUT_VOLUME;                                  // ALSO prevent value wraparound in the master output
+    // localparam MASTER_MAX_OUTPUT_VOLUME = {MASTER_OUTPUT_BITS{1'b1}};
+    // wire [MASTER_ACCUMULATOR_BITS-1:0] master;
+    // wire master_overflow;
+    // assign { master_overflow, master } = volume_A + volume_B + volume_C; // sum all channels
+    // // assign uo_out[MASTER_OUTPUT_BITS-1:0] = 
+    // //     (master_overflow == 0) ? master[MASTER_ACCUMULATOR_BITS-1 -: MASTER_OUTPUT_BITS] :  // pass highest MASTER_OUTPUT_BITS to the DAC output pins
+    // //                              MASTER_MAX_OUTPUT_VOLUME;                                  // ALSO prevent value wraparound in the master output
 
-    // PWM outputs
-    // pwm #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_A (
+    // // PWM outputs
+    // // pwm #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_A (
+    // //     .clk(clk),
+    // //     .reset(reset),
+    // //     .value(volume_A),
+    // //     .out(uio_out[4])
+    // //     );
+
+    // // pwm #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_B (
+    // //     .clk(clk),
+    // //     .reset(reset),
+    // //     .value(volume_B),
+    // //     .out(uio_out[5])
+    // //     );
+
+    // // pwm #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_C (
+    // //     .clk(clk),
+    // //     .reset(reset),
+    // //     .value(volume_C),
+    // //     .out(uio_out[6])
+    // //     );
+
+    // wire pwm_out_old;
+    // pwm #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master (
     //     .clk(clk),
     //     .reset(reset),
-    //     .value(volume_A),
-    //     .out(uio_out[4])
+    //     .value(master),
+    //     .out(pwm_out_old)
     //     );
-
-    // pwm #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_B (
-    //     .clk(clk),
-    //     .reset(reset),
-    //     .value(volume_B),
-    //     .out(uio_out[5])
-    //     );
-
-    // pwm #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_C (
-    //     .clk(clk),
-    //     .reset(reset),
-    //     .value(volume_C),
-    //     .out(uio_out[6])
-    //     );
-
-    wire pwm_out_old;
-    pwm #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master (
-        .clk(clk),
-        .reset(reset),
-        .value(master),
-        .out(pwm_out_old)
-        );
-    assign master_out[7:2] = 0;//master[MASTER_ACCUMULATOR_BITS-1 -: 6];
-    assign master_out[1:0] = 0;
+    // assign master_out[7:2] = 0;//master[MASTER_ACCUMULATOR_BITS-1 -: 6];
+    // assign master_out[1:0] = 0;
     
 
     // assign pwm_out = pwm_out_old;
