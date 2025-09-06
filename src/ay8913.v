@@ -354,5 +354,6 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
     // assign pwm_out = pwm_out_old;
     // assign pwm_out = pwm_out_reg;
     assign pwm_out = pwm_out_pipe; // TODO: up the volume by x4!
+    assign master_out = 0;
     
 endmodule
