@@ -18,23 +18,25 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
     input  wire [7:0] data,
     input  wire [1:0] master_clock_control,
 
-    output wire [7:0] master_out,
+    // output wire [7:0] master_out,
     output wire       pwm_out
 );
     wire reset = ! rst_n;
 
     reg [$clog2(256)-1:0] clk_counter;
-    reg clk_master_strobe;
-    always @(*) begin
-        case(master_clock_control[1:0])
-            2'b01:  clk_master_strobe = 1;                                  // no div, counters for tone & noise are always enabled
-                                                                            // useful to speedup record.py
-            2'b10:  clk_master_strobe = clk_counter[$clog2(256)-1:0] == 0;  // div 256, running 64Mhz
-            default:
-                    clk_master_strobe = clk_counter[$clog2(8)-1:0] == 0;    // div  8, for standard AY-3-819x 
-                                                                            // running on 1.7 MHz .. 2 MHz frequencies
-        endcase
-    end
+    wire clk_master_strobe = clk_counter[$clog2(256)-1:0] == 0; // div 256, running 64Mhz
+
+    // reg clk_master_strobe;
+    // always @(*) begin
+    //     case(master_clock_control[1:0])
+    //         2'b01:  clk_master_strobe = 1;                                  // no div, counters for tone & noise are always enabled
+    //                                                                         // useful to speedup record.py
+    //         2'b10:  clk_master_strobe = clk_counter[$clog2(256)-1:0] == 0;  // div 256, running 64Mhz
+    //         default:
+    //                 clk_master_strobe = clk_counter[$clog2(8)-1:0] == 0;    // div  8, for standard AY-3-819x 
+    //                                                                         // running on 1.7 MHz .. 2 MHz frequencies
+    //     endcase
+    // end
 
     localparam REGISTERS = 14;
     // reg [7:0] register[REGISTERS-1:0];  // 82 bits are used out of 128
@@ -46,27 +48,27 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
             // for (integer i = 0; i < REGISTERS; i = i + 1)
             //     register[i] <= 0;
 
-            tone_period_A <= 0;
-            tone_period_B <= 0;
-            tone_period_C <= 0;
-            noise_period  <= 0;
-            tone_disable_A <= 0;
-            tone_disable_B <= 0;
-            tone_disable_C <= 0;
-            noise_disable_A <= 0;
-            noise_disable_B <= 0;
-            noise_disable_C <= 0;
-            envelope_A <= 0;
-            envelope_B <= 0;
-            envelope_C <= 0;
-            amplitude_A <= 0;
-            amplitude_B <= 0;
-            amplitude_C <= 0;
-            envelope_period <= 0;
-            envelope_continue <= 0;
-            envelope_attack <= 0;
-            envelope_alternate <= 0;
-            envelope_hold <= 0;
+            // tone_period_A <= 0;
+            // tone_period_B <= 0;
+            // tone_period_C <= 0;
+            // noise_period  <= 0;
+            // tone_disable_A <= 0;
+            // tone_disable_B <= 0;
+            // tone_disable_C <= 0;
+            // noise_disable_A <= 0;
+            // noise_disable_B <= 0;
+            // noise_disable_C <= 0;
+            // envelope_A <= 0;
+            // envelope_B <= 0;
+            // envelope_C <= 0;
+            // amplitude_A <= 0;
+            // amplitude_B <= 0;
+            // amplitude_C <= 0;
+            // envelope_period <= 0;
+            // envelope_continue <= 0;
+            // envelope_attack <= 0;
+            // envelope_alternate <= 0;
+            // envelope_hold <= 0;
 
             restart_envelope <= 0;
 
@@ -138,14 +140,19 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
                     envelope_attack    <= data[2];
                     envelope_alternate <= data[1];
                     envelope_hold      <= data[0];
+
+                    restart_envelope   <= 1'b1; // restart envelope, if data is written
+                                                // to R13 Envelope Shape register
+                                                // NOTE: restart_envelope is held as long as the write cycle,
+                                                // which is accurate to the real AY-3-819x
                 end
                 // register[latched_register] <= data;
             end
 
-            restart_envelope <= write &&                    // restart envelope, if data is written
-                                latched_register == 4'd13;  // to R13 Envelope Shape register
-                                // NOTE: restart_envelope is held as long as the write cycle,
-                                // which is accurate to the real AY-3-819x
+            // restart_envelope <= write &&                    // restart envelope, if data is written
+            //                     latched_register == 4'd13;  // to R13 Envelope Shape register
+            //                     // NOTE: restart_envelope is held as long as the write cycle,
+            //                     // which is accurate to the real AY-3-819x
         end
     end
 
@@ -283,7 +290,7 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
         .out(master_pipe)
         );
     wire pwm_out_pipe;
-    reg pwm_out_reg;
+    // reg pwm_out_reg;
     pwm #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master_pipe (
         .clk(clk),
         .reset(reset),
@@ -354,6 +361,6 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
     // assign pwm_out = pwm_out_old;
     // assign pwm_out = pwm_out_reg;
     assign pwm_out = pwm_out_pipe; // TODO: up the volume by x4!
-    assign master_out = 0;
+    // assign master_out = 0;
     
 endmodule
