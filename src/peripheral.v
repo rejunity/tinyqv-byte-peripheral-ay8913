@@ -35,7 +35,7 @@ module tqvp_example (
         .data(data_in),
         // .master_clock_control(master_clock_control),
         .master_clock_control(2'b10),
-        .master_out(data_out),
+        // .master_out(data_out),
         .pwm_out(pwm_out)
     );
 
@@ -50,6 +50,7 @@ module tqvp_example (
     //     end
     // end
 
+    assign data_out = 0;
     assign uo_out = {8{pwm_out}};
 
 endmodule
