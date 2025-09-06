@@ -7,8 +7,8 @@
 //
 // However this implementation uses syncronous reset and single edge of the clock.
 
-module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 7,
-                parameter  MASTER_OUTPUT_BITS = 8
+module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 6,
+                parameter  MASTER_OUTPUT_BITS = 7
 ) (
     input  wire       clk,
     input  wire       rst_n,
