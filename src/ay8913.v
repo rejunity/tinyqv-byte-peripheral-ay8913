@@ -36,7 +36,7 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
         endcase
     end
 
-    localparam REGISTERS = 16;
+    localparam REGISTERS = 14;
     reg [7:0] register[REGISTERS-1:0];  // 82 bits are used out of 128
     reg restart_envelope;
 
@@ -264,6 +264,6 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
 
     // assign pwm_out = pwm_out_old;
     // assign pwm_out = pwm_out_reg;
-    assign pwm_out = pwm_out_pipe;
+    assign pwm_out = pwm_out_pipe; // TODO: up the volume by x4!
     
 endmodule
