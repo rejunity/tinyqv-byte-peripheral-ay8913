@@ -32,7 +32,8 @@ async def test_project(dut):
 
     dut._log.info("Test project behavior")
 
-    await set_register(tqv, 15, 0)
+    for reg in range(15):
+        await set_register(tqv, reg, 0)
 
     await set_mixer(tqv, tones_on='A')
     await set_volume(tqv, 'A', 15)

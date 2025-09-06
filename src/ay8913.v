@@ -277,6 +277,11 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
             volume_B_reg <= channel_B ? (envelope_B ? envelope: amplitude_B) : 4'd0;
             volume_C_reg <= channel_C ? (envelope_C ? envelope: amplitude_C) : 4'd0;
         end
+
+        if (clk_counter[1:0] == 0)
+            pwm_out_reg <= pwm_out_pipe;
+        else
+            pwm_out_reg <= pwm_out_reg | pwm_out_pipe;
     end
 
     wire [CHANNEL_OUTPUT_BITS-1:0] master_pipe;
@@ -290,13 +295,16 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
         .out(master_pipe)
         );
     wire pwm_out_pipe;
-    // reg pwm_out_reg;
+    reg pwm_out_reg;
     pwm #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master_pipe (
         .clk(clk),
         .reset(reset),
         .value({1'b0, master_pipe}),
         .out(pwm_out_pipe)
         );
+
+    // // @TODO: divide master by 3 instead of 2
+    localparam MASTER_ACCUMULATOR_BITS = CHANNEL_OUTPUT_BITS + 1;
 
     // wire [CHANNEL_OUTPUT_BITS-1:0] volume_A, volume_B, volume_C;
     // attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_A ( // @TODO: rename to amplitude to match docs
@@ -315,8 +323,6 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
     //     .out(volume_C)
     //     );
 
-    // // @TODO: divide master by 3 instead of 2
-    localparam MASTER_ACCUMULATOR_BITS = CHANNEL_OUTPUT_BITS + 1;
     // localparam MASTER_MAX_OUTPUT_VOLUME = {MASTER_OUTPUT_BITS{1'b1}};
     // wire [MASTER_ACCUMULATOR_BITS-1:0] master;
     // wire master_overflow;
@@ -354,13 +360,13 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
     //     .value(master),
     //     .out(pwm_out_old)
     //     );
+    
+    // assign pwm_out = pwm_out_old;
+    assign pwm_out = pwm_out_reg;
+    // assign pwm_out = pwm_out_pipe; // TODO: up the volume by x4!
+    // assign master_out = 0;
+
     // assign master_out[7:2] = 0;//master[MASTER_ACCUMULATOR_BITS-1 -: 6];
     // assign master_out[1:0] = 0;
-    
-
-    // assign pwm_out = pwm_out_old;
-    // assign pwm_out = pwm_out_reg;
-    assign pwm_out = pwm_out_pipe; // TODO: up the volume by x4!
-    // assign master_out = 0;
     
 endmodule
