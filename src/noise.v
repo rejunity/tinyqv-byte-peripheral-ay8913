@@ -55,9 +55,9 @@ module noise #( parameter LFSR_BITS = 17, LFSR_TAP0 = 0, LFSR_TAP1 = 3, paramete
     wire lfsr_shift_in = (lfsr[LFSR_TAP0] ^ lfsr[LFSR_TAP1]) | is_lfsr_zero;
 
     always @(posedge clk) begin
-        if (reset)
-            lfsr <= 0;
-        else
+        // if (reset)
+        //     lfsr <= 0;
+        // else
             if (trigger_edge)
                 lfsr <= {lfsr_shift_in, lfsr[LFSR_BITS-1:1]};
     end
