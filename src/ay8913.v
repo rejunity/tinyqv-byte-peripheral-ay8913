@@ -24,6 +24,8 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 6,
     reg [$clog2(256)-1:0] clk_counter;
     wire clk_master_strobe = clk_counter[$clog2(256)-1:0] == 0; // div 256, running 64Mhz
 
+    localparam REGISTERS = 14;
+    reg [7:0] register[REGISTERS-1:0];  // 82 bits are used out of 128
     reg restart_envelope;
 
     always @(posedge clk) begin
@@ -60,83 +62,83 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 6,
             clk_counter <= clk_counter + 1;                 // provides clk_master_strobe for tone, noise and envelope
 
             if (write) begin
-                // assign tone_period_A[11:0] = {register[1][3:0], register[0][7:0]};
-                if (         latched_register == 4'd0) begin
-                    tone_period_A[7:0]  <= data[7:0];
-                end else if (latched_register == 4'd1) begin
-                    tone_period_A[11:8] <= data[3:0];
+                // // assign tone_period_A[11:0] = {register[1][3:0], register[0][7:0]};
+                // if (         latched_register == 4'd0) begin
+                //     tone_period_A[7:0]  <= data[7:0];
+                // end else if (latched_register == 4'd1) begin
+                //     tone_period_A[11:8] <= data[3:0];
 
-                // assign tone_period_B[11:0] = {register[3][3:0], register[2][7:0]};
-                end else if (latched_register == 4'd2) begin
-                    tone_period_B[7:0]  <= data[7:0];
-                end else if (latched_register == 4'd3) begin
-                    tone_period_B[11:8] <= data[3:0];
+                // // assign tone_period_B[11:0] = {register[3][3:0], register[2][7:0]};
+                // end else if (latched_register == 4'd2) begin
+                //     tone_period_B[7:0]  <= data[7:0];
+                // end else if (latched_register == 4'd3) begin
+                //     tone_period_B[11:8] <= data[3:0];
 
-                // assign tone_period_C[11:0] = {register[5][3:0], register[4][7:0]};
-                end else if (latched_register == 4'd4) begin
-                    tone_period_C[7:0]  <= data[7:0];
-                end else if (latched_register == 4'd5) begin
-                    tone_period_C[11:8] <= data[3:0];
+                // // assign tone_period_C[11:0] = {register[5][3:0], register[4][7:0]};
+                // end else if (latched_register == 4'd4) begin
+                //     tone_period_C[7:0]  <= data[7:0];
+                // end else if (latched_register == 4'd5) begin
+                //     tone_period_C[11:8] <= data[3:0];
 
-                // assign noise_period[4:0]   = register[6][4:0];
-                end else if (latched_register == 4'd6) begin
-                    noise_period[4:0]   <= data[4:0];
+                // // assign noise_period[4:0]   = register[6][4:0];
+                // end else if (latched_register == 4'd6) begin
+                //     noise_period[4:0]   <= data[4:0];
 
-                // assign {noise_disable_C,
-                //         noise_disable_B,
-                //         noise_disable_A,
-                //         tone_disable_C,
-                //         tone_disable_B,
-                //         tone_disable_A} = register[7][5:0];
-                end else if (latched_register == 4'd7) begin
-                    noise_disable_C     <= data[5];
-                    noise_disable_B     <= data[4];
-                    noise_disable_A     <= data[3];
-                    tone_disable_C      <= data[2];
-                    tone_disable_B      <= data[1];
-                    tone_disable_A      <= data[0];
+                // // assign {noise_disable_C,
+                // //         noise_disable_B,
+                // //         noise_disable_A,
+                // //         tone_disable_C,
+                // //         tone_disable_B,
+                // //         tone_disable_A} = register[7][5:0];
+                // end else if (latched_register == 4'd7) begin
+                //     noise_disable_C     <= data[5];
+                //     noise_disable_B     <= data[4];
+                //     noise_disable_A     <= data[3];
+                //     tone_disable_C      <= data[2];
+                //     tone_disable_B      <= data[1];
+                //     tone_disable_A      <= data[0];
 
-                // assign {envelope_A, amplitude_A[3:0]} = register[ 8][4:0];
-                end else if (latched_register == 4'd8) begin
-                    envelope_A          <= data[4];
-                    amplitude_A[3:0]    <= data[3:0];
-                // assign {envelope_B, amplitude_B[3:0]} = register[ 9][4:0];
-                end else if (latched_register == 4'd9) begin
-                    envelope_B          <= data[4];
-                    amplitude_B[3:0]    <= data[3:0];
-                // assign {envelope_C, amplitude_C[3:0]} = register[10][4:0];
-                end else if (latched_register == 4'd10) begin
-                    envelope_C          <= data[4];
-                    amplitude_C[3:0]    <= data[3:0];
+                // // assign {envelope_A, amplitude_A[3:0]} = register[ 8][4:0];
+                // end else if (latched_register == 4'd8) begin
+                //     envelope_A          <= data[4];
+                //     amplitude_A[3:0]    <= data[3:0];
+                // // assign {envelope_B, amplitude_B[3:0]} = register[ 9][4:0];
+                // end else if (latched_register == 4'd9) begin
+                //     envelope_B          <= data[4];
+                //     amplitude_B[3:0]    <= data[3:0];
+                // // assign {envelope_C, amplitude_C[3:0]} = register[10][4:0];
+                // end else if (latched_register == 4'd10) begin
+                //     envelope_C          <= data[4];
+                //     amplitude_C[3:0]    <= data[3:0];
         
-                // assign envelope_period[15:0] = {register[12][7:0], register[11][7:0]};
-                end else if (latched_register == 4'd11) begin
-                    envelope_period[7:0]  <= data;
-                end else if (latched_register == 4'd12) begin
-                    envelope_period[15:8] <= data;
+                // // assign envelope_period[15:0] = {register[12][7:0], register[11][7:0]};
+                // end else if (latched_register == 4'd11) begin
+                //     envelope_period[7:0]  <= data;
+                // end else if (latched_register == 4'd12) begin
+                //     envelope_period[15:8] <= data;
 
-                // assign {envelope_continue,
-                //         envelope_attack,
-                //         envelope_alternate,
-                //         envelope_hold} = register[13][3:0];
-                end else if (latched_register == 4'd13) begin
-                    envelope_continue  <= data[3];
-                    envelope_attack    <= data[2];
-                    envelope_alternate <= data[1];
-                    envelope_hold      <= data[0];
+                // // assign {envelope_continue,
+                // //         envelope_attack,
+                // //         envelope_alternate,
+                // //         envelope_hold} = register[13][3:0];
+                // end else if (latched_register == 4'd13) begin
+                //     envelope_continue  <= data[3];
+                //     envelope_attack    <= data[2];
+                //     envelope_alternate <= data[1];
+                //     envelope_hold      <= data[0];
 
-                    restart_envelope   <= 1'b1; // restart envelope, if data is written
-                                                // to R13 Envelope Shape register
-                                                // NOTE: restart_envelope is held as long as the write cycle,
-                                                // which is accurate to the real AY-3-819x
-                end
-                // register[latched_register] <= data;
+                //     restart_envelope   <= 1'b1; // restart envelope, if data is written
+                //                                 // to R13 Envelope Shape register
+                //                                 // NOTE: restart_envelope is held as long as the write cycle,
+                //                                 // which is accurate to the real AY-3-819x
+                // end
+                register[latched_register] <= data;
             end
 
-            // restart_envelope <= write &&                    // restart envelope, if data is written
-            //                     latched_register == 4'd13;  // to R13 Envelope Shape register
-            //                     // NOTE: restart_envelope is held as long as the write cycle,
-            //                     // which is accurate to the real AY-3-819x
+            restart_envelope <= write &&                    // restart envelope, if data is written
+                                latched_register == 4'd13;  // to R13 Envelope Shape register
+                                // NOTE: restart_envelope is held as long as the write cycle,
+                                // which is accurate to the real AY-3-819x
         end
     end
 
@@ -157,42 +159,42 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 6,
     // R12 x x x x x x x x                 Coarse Tune
     // R13         x x x x Envelope Shape / Cycle
 
-    reg [11:0]  tone_period_A, tone_period_B, tone_period_C;
-    reg [4:0]   noise_period;
-    reg         tone_disable_A, tone_disable_B, tone_disable_C;
-    reg         noise_disable_A, noise_disable_B, noise_disable_C;
-    reg         envelope_A, envelope_B, envelope_C;
-    reg [3:0]   amplitude_A, amplitude_B, amplitude_C;
-    reg [15:0]  envelope_period;
-    reg         envelope_continue, envelope_attack, envelope_alternate, envelope_hold;
+    // reg [11:0]  tone_period_A, tone_period_B, tone_period_C;
+    // reg [4:0]   noise_period;
+    // reg         tone_disable_A, tone_disable_B, tone_disable_C;
+    // reg         noise_disable_A, noise_disable_B, noise_disable_C;
+    // reg         envelope_A, envelope_B, envelope_C;
+    // reg [3:0]   amplitude_A, amplitude_B, amplitude_C;
+    // reg [15:0]  envelope_period;
+    // reg         envelope_continue, envelope_attack, envelope_alternate, envelope_hold;
 
-    // wire [11:0]  tone_period_A, tone_period_B, tone_period_C;
-    // wire [4:0]   noise_period;
-    // wire         tone_disable_A, tone_disable_B, tone_disable_C;
-    // wire         noise_disable_A, noise_disable_B, noise_disable_C;
-    // wire         envelope_A, envelope_B, envelope_C;
-    // wire [3:0]   amplitude_A, amplitude_B, amplitude_C;
-    // wire [15:0]  envelope_period;
-    // wire         envelope_continue, envelope_attack, envelope_alternate, envelope_hold;
+    wire [11:0]  tone_period_A, tone_period_B, tone_period_C;
+    wire [4:0]   noise_period;
+    wire         tone_disable_A, tone_disable_B, tone_disable_C;
+    wire         noise_disable_A, noise_disable_B, noise_disable_C;
+    wire         envelope_A, envelope_B, envelope_C;
+    wire [3:0]   amplitude_A, amplitude_B, amplitude_C;
+    wire [15:0]  envelope_period;
+    wire         envelope_continue, envelope_attack, envelope_alternate, envelope_hold;
 
-    // assign tone_period_A[11:0] = {register[1][3:0], register[0][7:0]};
-    // assign tone_period_B[11:0] = {register[3][3:0], register[2][7:0]};
-    // assign tone_period_C[11:0] = {register[5][3:0], register[4][7:0]};
-    // assign noise_period[4:0]   = register[6][4:0];
-    // assign {noise_disable_C,
-    //         noise_disable_B,
-    //         noise_disable_A,
-    //         tone_disable_C,
-    //         tone_disable_B,
-    //         tone_disable_A} = register[7][5:0];
-    // assign {envelope_A, amplitude_A[3:0]} = register[ 8][4:0];
-    // assign {envelope_B, amplitude_B[3:0]} = register[ 9][4:0];
-    // assign {envelope_C, amplitude_C[3:0]} = register[10][4:0];
-    // assign envelope_period[15:0] = {register[12][7:0], register[11][7:0]};
-    // assign {envelope_continue,
-    //         envelope_attack,
-    //         envelope_alternate,
-    //         envelope_hold} = register[13][3:0];
+    assign tone_period_A[11:0] = {register[1][3:0], register[0][7:0]};
+    assign tone_period_B[11:0] = {register[3][3:0], register[2][7:0]};
+    assign tone_period_C[11:0] = {register[5][3:0], register[4][7:0]};
+    assign noise_period[4:0]   = register[6][4:0];
+    assign {noise_disable_C,
+            noise_disable_B,
+            noise_disable_A,
+            tone_disable_C,
+            tone_disable_B,
+            tone_disable_A} = register[7][5:0];
+    assign {envelope_A, amplitude_A[3:0]} = register[ 8][4:0];
+    assign {envelope_B, amplitude_B[3:0]} = register[ 9][4:0];
+    assign {envelope_C, amplitude_C[3:0]} = register[10][4:0];
+    assign envelope_period[15:0] = {register[12][7:0], register[11][7:0]};
+    assign {envelope_continue,
+            envelope_attack,
+            envelope_alternate,
+            envelope_hold} = register[13][3:0];
 
 
     // Tone, noise & envelope generators
@@ -276,12 +278,12 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 6,
 
     wire [CHANNEL_OUTPUT_BITS-1:0] master_pipe;
     wire [7:0] volume_sq = control_pipe * control_pipe;
-    // attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_pipe (
-    //     .in(1'b1),
-    //     .control(control_pipe),
-    //     .out(master_pipe)
-    //     );
-    assign master_pipe = volume_sq[7 -: CHANNEL_OUTPUT_BITS];
+    attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_pipe (
+        .in(1'b1),
+        .control(control_pipe),
+        .out(master_pipe)
+        );
+    // assign master_pipe = volume_sq[7 -: CHANNEL_OUTPUT_BITS];
 
 
     wire pwm_out_pipe;
