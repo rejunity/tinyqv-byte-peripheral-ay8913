@@ -268,16 +268,22 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 6,
             pwm_out_reg <= pwm_out_reg | pwm_out_pipe;
     end
 
-    wire [CHANNEL_OUTPUT_BITS-1:0] master_pipe;
-    attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_pipe (
-        .in(1'b1),
-        .control(
+    wire [3:0] control_pipe = 
             clk_counter[1:0] == 2'b00 ? 4'd0 :
             clk_counter[1:0] == 2'b01 ? volume_A_reg :
             clk_counter[1:0] == 2'b10 ? volume_B_reg :
-                                        volume_C_reg),
-        .out(master_pipe)
-        );
+                                        volume_C_reg;
+
+    wire [CHANNEL_OUTPUT_BITS-1:0] master_pipe;
+    wire [7:0] volume_sq = control_pipe * control_pipe;
+    // attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_pipe (
+    //     .in(1'b1),
+    //     .control(control_pipe),
+    //     .out(master_pipe)
+    //     );
+    assign master_pipe = volume_sq[7 -: CHANNEL_OUTPUT_BITS];
+
+
     wire pwm_out_pipe;
     reg pwm_out_reg;
     pwm_ay8913 #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master_pipe (
