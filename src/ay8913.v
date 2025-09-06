@@ -296,7 +296,7 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 6,
         );
     wire pwm_out_pipe;
     reg pwm_out_reg;
-    pwm #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master_pipe (
+    pwm_ay8913 #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master_pipe (
         .clk(clk),
         .reset(reset),
         .value({1'b0, master_pipe}),
@@ -332,21 +332,21 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 6,
     // //                              MASTER_MAX_OUTPUT_VOLUME;                                  // ALSO prevent value wraparound in the master output
 
     // // PWM outputs
-    // // pwm #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_A (
+    // // pwm_ay8913 #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_A (
     // //     .clk(clk),
     // //     .reset(reset),
     // //     .value(volume_A),
     // //     .out(uio_out[4])
     // //     );
 
-    // // pwm #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_B (
+    // // pwm_ay8913 #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_B (
     // //     .clk(clk),
     // //     .reset(reset),
     // //     .value(volume_B),
     // //     .out(uio_out[5])
     // //     );
 
-    // // pwm #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_C (
+    // // pwm_ay8913 #(.VALUE_BITS(CHANNEL_OUTPUT_BITS)) pwm_C (
     // //     .clk(clk),
     // //     .reset(reset),
     // //     .value(volume_C),
@@ -354,7 +354,7 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 6,
     // //     );
 
     // wire pwm_out_old;
-    // pwm #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master (
+    // pwm_ay8913 #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master (
     //     .clk(clk),
     //     .reset(reset),
     //     .value(master),

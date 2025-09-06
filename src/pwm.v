@@ -4,7 +4,7 @@
 // 
 // Implementaion based on https://www.fpga4fun.com/PWM_DAC_2.html
 
-module pwm #( parameter VALUE_BITS = 8 ) (
+module pwm_ay8913 #( parameter VALUE_BITS = 8 ) (
     input  wire clk,
     input  wire reset,
 
