@@ -23,7 +23,7 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
 );
     wire reset = ! rst_n;
 
-    reg [$clog2(512)-1:0] clk_counter;
+    reg [$clog2(256)-1:0] clk_counter;
     reg clk_master_strobe;
     always @(*) begin
         case(master_clock_control[1:0])
@@ -162,6 +162,46 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
     wire channel_B = (tone_disable_B | tone_B) & (noise_disable_B | noise);
     wire channel_C = (tone_disable_C | tone_C) & (noise_disable_C | noise);
 
+
+    // wire [3:0] volume_A = (envelope_A ? envelope: amplitude_A) * channel_A;
+    // wire [3:0] volume_B = (envelope_B ? envelope: amplitude_B) * channel_B;
+    // wire [3:0] volume_C = (envelope_C ? envelope: amplitude_C) * channel_C;
+
+    reg [3:0] volume_A_reg;
+    reg [3:0] volume_B_reg;
+    reg [3:0] volume_C_reg;
+    always @(posedge clk) begin
+        if (clk_master_strobe) begin
+            volume_A_reg <= channel_A ? (envelope_A ? envelope: amplitude_A) : 4'd0;
+            volume_B_reg <= channel_B ? (envelope_B ? envelope: amplitude_B) : 4'd0;
+            volume_C_reg <= channel_C ? (envelope_C ? envelope: amplitude_C) : 4'd0;
+        end
+
+        // if (clk_counter[1:0] == 2'b00) // 01?
+        //     pwm_out_reg <= pwm_out_pipe;
+    end
+
+    wire [CHANNEL_OUTPUT_BITS-1:0] master_pipe;
+    // reg [MASTER_ACCUMULATOR_BITS-1:0] master_pipe;
+    attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_pipe (
+        .in(1'b1),
+        .control(
+            clk_counter[1:0] == 2'b00 ? 4'd0 :
+            clk_counter[1:0] == 2'b01 ? volume_A_reg :
+            clk_counter[1:0] == 2'b10 ? volume_B_reg :
+                                        volume_C_reg),
+        .out(master_pipe)
+        );
+    wire pwm_out_pipe;
+    reg pwm_out_reg;
+    pwm #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master_pipe (
+        .clk(clk),
+        .reset(reset),
+        .value({1'b0, master_pipe}),
+        .out(pwm_out_pipe)
+        );
+
+
     wire [CHANNEL_OUTPUT_BITS-1:0] volume_A, volume_B, volume_C;
     attenuation #(.VOLUME_BITS(CHANNEL_OUTPUT_BITS)) attenuation_A ( // @TODO: rename to amplitude to match docs
         .in(channel_A),
@@ -211,13 +251,19 @@ module ay8913 #(parameter CHANNEL_OUTPUT_BITS = 5,
     //     .out(uio_out[6])
     //     );
 
+    wire pwm_out_old;
     pwm #(.VALUE_BITS(MASTER_ACCUMULATOR_BITS)) pwm_master (
         .clk(clk),
         .reset(reset),
         .value(master),
-        .out(pwm_out)
+        .out(pwm_out_old)
         );
     assign master_out[7:2] = 0;//master[MASTER_ACCUMULATOR_BITS-1 -: 6];
     assign master_out[1:0] = 0;
+    
+
+    // assign pwm_out = pwm_out_old;
+    // assign pwm_out = pwm_out_reg;
+    assign pwm_out = pwm_out_pipe;
     
 endmodule
