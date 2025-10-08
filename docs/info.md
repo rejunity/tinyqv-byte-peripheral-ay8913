@@ -18,8 +18,11 @@ Author: ReJ aka Renaldas Zioma
 Peripheral index: 20
 
 ## What it does
-
 This is a replica of 8-bit classic **[AY-3-8910/AY-3-8912/AY-3-8913](https://en.wikipedia.org/wiki/General_Instrument_AY-3-8910)** 3-voice programmable sound generator (PSG) integrated into a modern RISC-V as a peripheral.
+
+<p align="center" width="100%">
+    <img width="30%" src="https://github.com/user-attachments/assets/caa3dbb3-03ab-4365-97cb-6d3b5abe0f9e">
+</p>
 
 The AY-3-891x family of programmable sound generators was introduced by General Instrument in 1978. Variants of the AY-3-891x were broadly used in:
 
